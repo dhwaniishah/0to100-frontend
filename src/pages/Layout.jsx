@@ -1,7 +1,7 @@
 // Layout.jsx
 import React from 'react';
 import {Outlet, useLocation} from 'react-router';
-import Navbar from '../components/Navbar';
+import Navbar from '../components/NavBar';
 
 const Layout = () => {
   const location = useLocation();

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import CartItem from '../components/CartItem';
 import CheckoutSummary from '../components/CheckoutSummary';
 import EmptyCart from '../components/EmptyCart';
-import { sampleCartItems } from '../components/cartData';
+import { sampleCartItems } from '../components/CartData';
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState(sampleCartItems);
