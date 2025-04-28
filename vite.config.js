@@ -14,5 +14,10 @@ export default defineConfig({
       '@components': path.resolve(__dirname, './src/components'),
       '@pages': path.resolve(__dirname, './src/pages')
     }
-  }
+  },
+  build: {
+    target: 'esnext',
+    outDir: 'dist',
+  },
+  base: './',
 })
