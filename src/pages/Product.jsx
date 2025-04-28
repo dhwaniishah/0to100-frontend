@@ -1,35 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Heart, ShoppingCart, Share2, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, ShoppingCart, Share2, Star, AlertCircle } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router';
+import axios from 'axios';
+import { useCart } from '../context/CartContext';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const ProductPage = () => {
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [quantity, setQuantity] = useState(4);
+  const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [actionMessage, setActionMessage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(0);
 
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
+      setError(null);
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Fetch product from the backend API
+        const response = await axios.get(`${API_URL}/product/${id}`);
 
-        const mockProducts = await import('../mockData/products').then(
-          module => module.default || module
-        ).catch(() => {
-          return [defaultProduct];
-        });
+        if (response.data.error) {
+          throw new Error(response.data.error);
+        }
 
-        const foundProduct = mockProducts.find(p => p.id === parseInt(id));
+        if (response.data.data) {
+          const productData = response.data.data;
 
-        if (foundProduct) {
+          // Build images array using the imageUrl if available, otherwise use placeholder
+          const images = productData.imageUrl
+            ? [productData.imageUrl]
+            : ['/api/placeholder/800/500'];
+
+          // Enhance the product data with additional details
           setProduct({
-            ...foundProduct,
-            images: [foundProduct.image], // In a real app, we'd have multiple images
+            ...productData,
+            images,
             rating: 4.7,
             reviews: 124,
             features: [
@@ -46,26 +60,29 @@ const ProductPage = () => {
             ]
           });
         } else {
-          navigate('/shop');
+          throw new Error('Product not found');
         }
       } catch (error) {
         console.error("Error fetching product:", error);
+        setError(error.message || 'Failed to load product');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProduct();
-  }, [id, navigate]);
+    if (id) {
+      fetchProduct();
+    }
+  }, [id]);
 
   const defaultProduct = {
     id: 0,
-    title: "Product Title",
+    name: "Product Title",
     description: "Product description not available",
     price: 0,
-    image: "/api/placeholder/800/500",
+    imageUrl: null,
     category: "Category",
-    company: "Company",
+    company: null,
     rating: 0,
     reviews: 0,
     features: [],
@@ -76,11 +93,15 @@ const ProductPage = () => {
   const productData = product || defaultProduct;
 
   const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % productData.images.length);
+    if (productData.images && productData.images.length > 1) {
+      setSelectedImage((prev) => (prev + 1) % productData.images.length);
+    }
   };
 
   const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + productData.images.length) % productData.images.length);
+    if (productData.images && productData.images.length > 1) {
+      setSelectedImage((prev) => (prev - 1 + productData.images.length) % productData.images.length);
+    }
   };
 
   const increaseQuantity = () => {
@@ -93,6 +114,51 @@ const ProductPage = () => {
     }
   };
 
+  const showMessage = (message, isError = false) => {
+    setActionMessage({
+      text: message,
+      isError
+    });
+
+    // Clear message after 3 seconds
+    setTimeout(() => {
+      setActionMessage(null);
+    }, 3000);
+  };
+
+  const handleAddToCart = async () => {
+    if (!product || !product._id) {
+      showMessage('Product not found', true);
+      return;
+    }
+
+    setAddingToCart(true);
+
+    try {
+      const result = await addToCart(product._id, quantity);
+
+      if (result.success) {
+        showMessage(`${quantity} item(s) added to cart`);
+      } else {
+        showMessage(result.message || 'Failed to add to cart', true);
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showMessage('Error adding to cart', true);
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    try {
+      await handleAddToCart();
+      navigate('/cart');
+    } catch (error) {
+      console.error('Error in buy now:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -101,9 +167,36 @@ const ProductPage = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+          <p>{error}</p>
+        </div>
+        <button
+          onClick={() => navigate('/shop')}
+          className="px-4 py-2 bg-gray-800 text-white rounded-md"
+        >
+          Return to Shop
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        {actionMessage && (
+          <div className={`p-4 ${actionMessage.isError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'} flex items-center justify-center`}>
+            {actionMessage.isError ? (
+              <AlertCircle className="mr-2 h-5 w-5" />
+            ) : (
+              <ShoppingCart className="mr-2 h-5 w-5" />
+            )}
+            <span>{actionMessage.text}</span>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Images Section */}
           <div className="p-6">
@@ -116,8 +209,8 @@ const ProductPage = () => {
               </button>
 
               <img
-                src={productData.images[selectedImage] || productData.image}
-                alt={`${productData.title} - View ${selectedImage + 1}`}
+                src={productData.images[selectedImage]}
+                alt={`${productData.name || productData.title} - View ${selectedImage + 1}`}
                 className="w-full aspect-square object-cover"
               />
 
@@ -156,7 +249,7 @@ const ProductPage = () => {
             </div>
 
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{productData.title}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{productData.name || productData.title}</h1>
 
               {productData.rating > 0 && (
                 <div className="flex items-center mb-4">
@@ -180,6 +273,7 @@ const ProductPage = () => {
                 <button
                   className="w-12 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100"
                   onClick={decreaseQuantity}
+                  disabled={quantity <= 1}
                 >
                   -
                 </button>
@@ -199,11 +293,25 @@ const ProductPage = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-              <button className="btn w-full sm:w-48 bg-gray-900 hover:bg-black text-white border-none rounded-md shadow-sm transition-all duration-200 flex items-center justify-center px-4 py-2 h-10">
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                <span className="font-medium text-sm">Add to Cart</span>
+              <button
+                onClick={handleAddToCart}
+                disabled={addingToCart}
+                className="btn w-full sm:w-48 bg-gray-900 hover:bg-black text-white border-none rounded-md shadow-sm transition-all duration-200 flex items-center justify-center px-4 py-2 h-10"
+              >
+                {addingToCart ? (
+                  <span className="loading loading-spinner loading-xs mr-2"></span>
+                ) : (
+                  <ShoppingCart className="w-4 h-4 mr-2" />
+                )}
+                <span className="font-medium text-sm">
+                  {addingToCart ? 'Adding...' : 'Add to Cart'}
+                </span>
               </button>
-              <button className="btn w-full sm:w-48 bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 hover:border-gray-400 rounded-md shadow-sm transition-all duration-200 flex items-center justify-center px-4 py-2 h-10">
+              <button
+                onClick={handleBuyNow}
+                disabled={addingToCart}
+                className="btn w-full sm:w-48 bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 hover:border-gray-400 rounded-md shadow-sm transition-all duration-200 flex items-center justify-center px-4 py-2 h-10"
+              >
                 <span className="font-medium text-sm">Buy Now</span>
               </button>
             </div>

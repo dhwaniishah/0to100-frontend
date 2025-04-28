@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, BarChart, ShoppingBag, Users, CheckCircle } from 'lucide-react';
-import hero from "./assets/hero2.webp"
+import hero from "./assets/hero.png"
 
 const HomePage = () => {
   return (
@@ -33,15 +33,13 @@ const HomePage = () => {
                 </a>
               </div>
             </div>
-            <div className="mt-10 lg:mt-0 lg:w-1/2">
-              <div className="bg-black p-3 rounded-md shadow-xl">
+              <div className="p-3 rounded-md">
                 <img
                   src={hero}
                   alt="High-performance engine component"
-                  className="rounded-sm w-full object-cover"
+                  className="rounded-sm w-100 h-100 object-cover"
                 />
               </div>
-            </div>
           </div>
         </div>
       </div>

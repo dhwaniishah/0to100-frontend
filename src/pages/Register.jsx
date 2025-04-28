@@ -7,7 +7,6 @@ const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -67,7 +66,7 @@ const RegisterPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-3xl font-light text-gray-900 tracking-tight">AutoBros</h2>
+        <h2 className="text-center text-3xl font-light text-gray-900 tracking-tight">0to100 Motorsports</h2>
         <h3 className="mt-2 text-center text-base text-gray-500 font-light">Create your account</h3>
       </div>
 
@@ -155,21 +154,6 @@ const RegisterPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                id="agree-terms"
-                name="agree-terms"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                required
-                checked={agreeTerms}
-                onChange={(e) => setAgreeTerms(e.target.checked)}
-              />
-              <label htmlFor="agree-terms" className="ml-2 block text-sm text-gray-700">
-                I agree to the <Link to="/terms" className="text-indigo-600 hover:text-indigo-500">Terms and Conditions</Link>
-              </label>
-            </div>
-
             <div>
               <button
                 type="submit"
@@ -200,7 +184,7 @@ const RegisterPage = () => {
         </div>
 
         <div className="mt-6 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} AutoBros. All rights reserved.
+          &copy; {new Date().getFullYear()} 0to100 Motorsports. All rights reserved.
         </div>
       </div>
     </div>

@@ -52,7 +52,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-3xl font-light text-gray-900 tracking-tight">AutoBros</h2>
+        <h2 className="text-center text-3xl font-light text-gray-900 tracking-tight">0to100 Motorsports</h2>
         <h3 className="mt-2 text-center text-base text-gray-500 font-light">Sign in to your account</h3>
       </div>
 
@@ -153,7 +153,7 @@ const LoginPage = () => {
         </div>
 
         <div className="mt-6 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} AutoBros. All rights reserved.
+          &copy; {new Date().getFullYear()} 0to100 Motorsports. All rights reserved.
         </div>
       </div>
     </div>

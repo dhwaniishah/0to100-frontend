@@ -1,7 +1,8 @@
 // Layout.jsx
 import React from 'react';
-import {Outlet, useLocation} from 'react-router';
-import Navbar from '../components/NavBar';
+import {Link, Outlet, useLocation} from 'react-router';
+import Navbar from '../components/Navbar';
+import Logo from "../assets/icon.png";
 
 const Layout = () => {
   const location = useLocation();
@@ -24,9 +25,12 @@ const Layout = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               {/* Company Info */}
               <div className="col-span-1">
-                <h3 className="text-lg font-bold mb-4">AutoBros</h3>
+                <Link to="/" className="flex flex-row flex-shrink-0 items-center">
+                  <img src={Logo} alt="logo" className="h-20 w-20 invert" />
+                  <span className="text-lg font-bold">0 to 100 Motorsports</span>
+                </Link>
                 <p className="mb-4 text-gray-300">Your trusted automotive partner since 2020</p>
-                <p className="text-gray-300">© {new Date().getFullYear()} AutoBros. All rights reserved.</p>
+                <p className="text-gray-300">© {new Date().getFullYear()} 0to100 Motorsports. All rights reserved.</p>
               </div>
 
               {/* Quick Links */}
@@ -40,19 +44,8 @@ const Layout = () => {
                 </ul>
               </div>
 
-              {/* Services */}
-              <div className="col-span-1">
-                <h3 className="text-lg font-bold mb-4">Services</h3>
-                <ul className="space-y-2">
-                  <li><a href="/services/maintenance" className="text-gray-300 hover:text-white">Maintenance</a></li>
-                  <li><a href="/services/repairs" className="text-gray-300 hover:text-white">Repairs</a></li>
-                  <li><a href="/services/custom" className="text-gray-300 hover:text-white">Custom Work</a></li>
-                  <li><a href="/services/accessories" className="text-gray-300 hover:text-white">Accessories</a></li>
-                </ul>
-              </div>
-
               {/* Contact */}
-              <div className="col-span-1">
+              <div className="col-span-2">
                 <h3 className="text-lg font-bold mb-4">Contact Us</h3>
                 <address className="not-italic text-gray-300">
                   <p>123 Auto Street</p>
